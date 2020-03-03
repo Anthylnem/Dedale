@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
+import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -40,20 +41,31 @@ public class ReceiveBehaviour extends SimpleBehaviour{
 	@SuppressWarnings("unchecked")
 	public void action() {
 		
-		final MessageTemplate pingTemplate = MessageTemplate.MatchPerformative(ACLMessage.REQUEST);
-		final ACLMessage pingMsg = this.myAgent.receive(pingTemplate);
+		MessageTemplate pingTemplate = MessageTemplate.MatchPerformative(ACLMessage.REQUEST);
+		ACLMessage pingMsg = this.myAgent.receive(pingTemplate);
 		
 		if (pingMsg != null) {
-			System.out.println(this.myAgent.getLocalName()+" a reçu le ping "+pingMsg.getContent());
+			AID sender = pingMsg.getSender();
+			String name = sender.getLocalName();
+			System.out.println(sender);
+			System.out.println(this.myAgent.getLocalName()+" a reçu le ping ");
 		
 			ACLMessage ackPing = new ACLMessage(ACLMessage.AGREE);
+			ackPing.setSender(this.myAgent.getAID());
 			ackPing.setContent("ackPing send map");
+			ackPing.addReceiver(new AID(name,AID.ISLOCALNAME));
 			((AbstractDedaleAgent)this.myAgent).sendMessage(ackPing);
-			System.out.println(this.myAgent.getLocalName()+" a envoyé le ackPing.");
+			System.out.println(this.myAgent.getLocalName()+" a envoyé le ackPing.");			
 			
-			final MessageTemplate msgTemplate = MessageTemplate.MatchPerformative(ACLMessage.INFORM);			
-	
-			final ACLMessage msg = this.myAgent.receive(msgTemplate);
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			}
+			
+			MessageTemplate msgTemplate = MessageTemplate.MatchPerformative(ACLMessage.INFORM);			
+			ACLMessage msg = this.myAgent.receive(msgTemplate);
+			
 			if (msg != null) {
 				try {
 					System.out.println("Receive "+msg.getContentObject());
@@ -69,7 +81,6 @@ public class ReceiveBehaviour extends SimpleBehaviour{
 					
 					System.out.println("Agent "+this.myAgent.getLocalName()+ " a reçu le message.");
 					System.out.println(this.myAgent.getLocalName()+"<----Result received from "+msg.getSender().getLocalName()+" ,content= "+msg.getContentObject());
-					this.finished=true;
 				} catch (UnreadableException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

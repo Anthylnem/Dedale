@@ -47,6 +47,8 @@ public class MapRepresentation implements Serializable {
 	private String defaultNodeStyle= "node {"+"fill-color: black;"+" size-mode:fit;text-alignment:under; text-size:14;text-color:white;text-background-mode:rounded-box;text-background-color:black;}";
 	private String nodeStyle_open = "node.agent {"+"fill-color: forestgreen;"+"}";
 	private String nodeStyle_agent = "node.open {"+"fill-color: blue;"+"}";
+	private String nodeStyle_openSend = "node.open {"+"fill-color: green;"+"}";
+	private String nodeStyle_agentSend = "node.open {"+"fill-color: yellow;"+"}";
 	private String nodeStyle=defaultNodeStyle+nodeStyle_agent+nodeStyle_open;
 
 	private Graph g; //data structure non serializable
@@ -84,6 +86,18 @@ public class MapRepresentation implements Serializable {
 		}
 		n.clearAttributes();
 		n.setAttribute("ui.class", mapAttribute.toString());
+		n.setAttribute("ui.label",id);
+	}
+	
+	public void addNode(String id,MapAttribute mapAttribute,Boolean send){
+		Node n;
+		if (this.g.getNode(id)==null){
+			n=this.g.addNode(id);
+		}else{
+			n=this.g.getNode(id);
+		}
+		n.clearAttributes();
+		n.setAttribute("ui.class", mapAttribute.toString()+"Send");
 		n.setAttribute("ui.label",id);
 	}
 

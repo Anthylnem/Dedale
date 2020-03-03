@@ -42,6 +42,7 @@ public class SendBehaviour extends TickerBehaviour{
 	@Override
 	public void onTick() {
 		ACLMessage ping = new ACLMessage(ACLMessage.REQUEST);
+		ping.setSender(this.myAgent.getAID());
 		ping.setContent("Ping send map");
 		
 		for(DFAgentDescription a : agentsList) {
@@ -51,26 +52,27 @@ public class SendBehaviour extends TickerBehaviour{
 				ServiceDescription s = services.next();
 				String name = s.getName();
 				
-				System.out.println(name);
+				if(!name.equals(this.myAgent.getLocalName())) {
+					ping.addReceiver(new AID(name,AID.ISLOCALNAME));
 				
-				ping.addReceiver(new AID(name,AID.ISLOCALNAME));
-				
-				((AbstractDedaleAgent)this.myAgent).sendMessage(ping);
+					((AbstractDedaleAgent)this.myAgent).sendMessage(ping);
+					System.out.println(this.myAgent.getLocalName()+" a envoyé le ping"+" a "+name);
+				}
 			}
 		}
 
-		System.out.println(this.myAgent.getLocalName()+" a envoyé le ping.");
 		
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(500);
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
 		}
 		
-		final MessageTemplate ackPingTemplate = MessageTemplate.MatchPerformative(ACLMessage.AGREE);
-		final ACLMessage ackPingMsg = this.myAgent.receive(ackPingTemplate);
+		MessageTemplate ackPingTemplate = MessageTemplate.MatchPerformative(ACLMessage.AGREE);
+		ACLMessage ackPingMsg = this.myAgent.receive(ackPingTemplate);
+		
 		if (ackPingMsg != null) {
-			System.out.println(this.myAgent.getLocalName()+" a reçu le ackPing "+ackPingMsg.getContent());
+			System.out.println(this.myAgent.getLocalName()+" a reçu le ackPing ");
 			
 			String myPosition=((AbstractDedaleAgent)this.myAgent).getCurrentPosition();
 	

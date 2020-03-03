@@ -203,14 +203,14 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 	
 	public void majNodes(Set<String> closedNodes,List<String> openNodes) {
 		for(String s: closedNodes) {
-			this.myMap.addNode(s,MapAttribute.closed);
+			this.myMap.addNode(s,MapAttribute.closed,true);
 			this.closedNodes.add(s);
 			this.openNodes.remove(s);
 
 		}
 		
 		for(String s: openNodes) {
-			this.myMap.addNode(s,MapAttribute.open);
+			this.myMap.addNode(s,MapAttribute.open,true);
 			this.openNodes.add(s);
 		}
 	}
