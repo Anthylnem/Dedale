@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 import dataStructures.tuple.Couple;
@@ -11,6 +12,7 @@ import eu.su.mas.dedale.env.Observation;
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
 import eu.su.mas.dedaleEtu.mas.knowledge.MapRepresentation;
 import eu.su.mas.dedaleEtu.mas.knowledge.MapRepresentation.MapAttribute;
+import jade.core.behaviours.OneShotBehaviour;
 import jade.core.behaviours.SimpleBehaviour;
 
 
@@ -26,7 +28,7 @@ import jade.core.behaviours.SimpleBehaviour;
  * @author hc
  *
  */
-public class ExploSoloBehaviour extends SimpleBehaviour {
+public class ExploSoloBehaviour extends OneShotBehaviour {
 
 	private static final long serialVersionUID = 8567689731496787661L;
 
@@ -48,7 +50,10 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 	
 	private ArrayList<ArrayList<String>> edges;
 	
-
+	private List<Couple<String,List<Couple<Observation,Integer>>>> lobs;
+	
+	private int end;
+	
 
 	public ExploSoloBehaviour(final AbstractDedaleAgent myagent, MapRepresentation myMap) {
 		super(myagent);
@@ -60,7 +65,6 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 
 	@Override
 	public void action() {
-
 		if(this.myMap==null)
 			this.myMap= new MapRepresentation();
 		
@@ -69,7 +73,7 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 	
 		if (myPosition!=null){
 			//List of observable from the agent's current position
-			List<Couple<String,List<Couple<Observation,Integer>>>> lobs=((AbstractDedaleAgent)this.myAgent).observe();//myPosition
+			this.lobs=((AbstractDedaleAgent)this.myAgent).observe();//myPosition
 
 			/**
 			 * Just added here to let you see what the agent is doing, otherwise he will be too quick
@@ -182,16 +186,41 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 				/************************************************
 				 * 				END API CALL ILUSTRATION
 				 *************************************************/
+				end = 0;
+				Iterator<Couple<String, List<Couple<Observation, Integer>>>> ite=lobs.iterator();
+				while(ite.hasNext()) {
+					Couple<String, List<Couple<Observation, Integer>>> next = ite.next();
+					String nodeId = next.getLeft();
+					List<Couple<Observation, Integer>> stench = next.getRight();
+					//System.out.println(nodeId+" "+stench);
+					
+					if(stench.size() > 0) {
+						if((stench.get(0).getLeft()).toString().equals("Stench"))
+							System.out.println("Je vais chasser au noeud "+nextNode);
+							nextNode = next.getLeft();
+							end = 1;
+							break;
+					}
+				}
 				((AbstractDedaleAgent)this.myAgent).moveTo(nextNode);
 			}
 
 		}
+		
+	}
+	
+	@Override
+	public int onEnd() {
+		return 0;
+	}
+	
+	public List<Couple<String, List<Couple<Observation, Integer>>>> getObs() {		
+		return lobs;
 	}
 
-	@Override
-	public boolean done() {
-		return finished;
-	}
+	/*
+	 * @Override public boolean done() { return finished; }
+	 */
 
 	public Set<String> getClosedNodes() {
 		return closedNodes;

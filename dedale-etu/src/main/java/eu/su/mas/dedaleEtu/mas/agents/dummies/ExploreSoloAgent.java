@@ -7,9 +7,11 @@ import eu.su.mas.dedale.mas.AbstractDedaleAgent;
 import eu.su.mas.dedale.mas.agent.behaviours.startMyBehaviours;
 import eu.su.mas.dedaleEtu.mas.behaviours.SendBehaviour;
 import eu.su.mas.dedaleEtu.mas.behaviours.ExploSoloBehaviour;
+import eu.su.mas.dedaleEtu.mas.behaviours.HuntBehaviour;
 import eu.su.mas.dedaleEtu.mas.behaviours.ReceiveBehaviour;
 import eu.su.mas.dedaleEtu.mas.knowledge.MapRepresentation;
 import jade.core.behaviours.Behaviour;
+import jade.core.behaviours.FSMBehaviour;
 import jade.domain.DFService;
 import jade.domain.FIPAException;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
@@ -62,19 +64,39 @@ public class ExploreSoloAgent extends AbstractDedaleAgent {
 			dfd1.addServices(sd1);
 			DFAgentDescription[] agentsList = DFService.search(this, dfd1);
 		
-		
-		List<Behaviour> lb=new ArrayList<Behaviour>();
-		
-		ExploSoloBehaviour explo = new ExploSoloBehaviour(this,this.myMap);
-		lb.add(explo);
-		
-		lb.add(new SendBehaviour(this,explo,agentsList));
-		lb.add(new ReceiveBehaviour(this,explo));
-		
-		
-		addBehaviour(new startMyBehaviours(this,lb));
-		
-		System.out.println("the  agent "+this.getLocalName()+ " is started");
+			FSMBehaviour fsm = new FSMBehaviour(this) {
+				public int onEnd() {
+					System.out.println("FSM behaviour terminé");
+					myAgent.doDelete();
+					return super.onEnd();
+				}
+			};
+			
+			
+			
+			List<Behaviour> lb=new ArrayList<Behaviour>();
+			
+			ExploSoloBehaviour explo = new ExploSoloBehaviour(this,this.myMap);
+			//lb.add(explo);
+			//lb.add(new HuntBehaviour(this,this.myMap,explo));
+			lb.add(new SendBehaviour(this,explo,agentsList));
+			lb.add(new ReceiveBehaviour(this,explo));
+			
+			fsm.registerFirstState(explo, "Exploration");
+			fsm.registerState(new HuntBehaviour(this,this.myMap,explo), "Hunt");
+			
+			fsm.registerDefaultTransition("Exploration","Hunt");
+			fsm.registerTransition("Exploration", "Hunt", 1);
+			fsm.registerTransition("Exploration", "Exploration", 0);		
+			fsm.registerTransition("Hunt", "Exploration", 1);
+			fsm.registerTransition("Hunt", "Hunt", 0);
+			
+			lb.add(fsm);
+			
+			addBehaviour(new startMyBehaviours(this,lb));
+
+			
+			System.out.println("the  agent "+this.getLocalName()+ " is started");
 		
 		} catch (FIPAException fe) {
 			fe.printStackTrace();

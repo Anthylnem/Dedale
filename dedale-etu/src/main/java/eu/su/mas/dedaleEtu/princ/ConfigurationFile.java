@@ -58,7 +58,7 @@ public final class ConfigurationFile {
 	 * Not null when the environment is loaded; should be null if the environment is generated or already online
 	 */
 	//public static String INSTANCE_TOPOLOGY=null;
-	public static String INSTANCE_TOPOLOGY="resources/topology/BinaryTree1";
+	public static String INSTANCE_TOPOLOGY="resources/topology/BinaryTree2";
 	//public static String INSTANCE_TOPOLOGY="resources/topology/map2018-topology-ica";
 	//public static String INSTANCE_TOPOLOGY="resources/interlocking/mapInterlocking2-topology";
 	//public static String INSTANCE_TOPOLOGY="resources/HouatTopology";
@@ -82,7 +82,7 @@ public final class ConfigurationFile {
 	/**
 	 * Must'nt be null as it describes the agents capabilities on the map
 	 */
-	public static String INSTANCE_CONFIGURATION_ENTITIES="resources/treasureHunt/anyMap-hunt-1golem1agent-entities";
+	public static String INSTANCE_CONFIGURATION_ENTITIES="resources/treasureHunt/anyMap-hunt-1golem2agent-entities2";
 	//public static String INSTANCE_CONFIGURATION_ENTITIES="resources/agentExplo";
 	//public static String INSTANCE_CONFIGURATION_ENTITIES="resources/agentExplo-2";
 	//public static String INSTANCE_CONFIGURATION_ENTITIES="resources/map2018-entities2";
