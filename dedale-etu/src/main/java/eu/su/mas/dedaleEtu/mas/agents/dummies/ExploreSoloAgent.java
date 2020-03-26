@@ -64,34 +64,31 @@ public class ExploreSoloAgent extends AbstractDedaleAgent {
 			dfd1.addServices(sd1);
 			DFAgentDescription[] agentsList = DFService.search(this, dfd1);
 		
-			FSMBehaviour fsm = new FSMBehaviour(this) {
-				public int onEnd() {
-					System.out.println("FSM behaviour terminé");
-					myAgent.doDelete();
-					return super.onEnd();
-				}
-			};
-			
-			
-			
 			List<Behaviour> lb=new ArrayList<Behaviour>();
 			
 			ExploSoloBehaviour explo = new ExploSoloBehaviour(this,this.myMap);
-			//lb.add(explo);
-			//lb.add(new HuntBehaviour(this,this.myMap,explo));
+			lb.add(explo);
 			lb.add(new SendBehaviour(this,explo,agentsList));
 			lb.add(new ReceiveBehaviour(this,explo));
 			
-			fsm.registerFirstState(explo, "Exploration");
-			fsm.registerState(new HuntBehaviour(this,this.myMap,explo), "Hunt");
-			
-			fsm.registerDefaultTransition("Exploration","Hunt");
-			fsm.registerTransition("Exploration", "Hunt", 1);
-			fsm.registerTransition("Exploration", "Exploration", 0);		
-			fsm.registerTransition("Hunt", "Exploration", 1);
-			fsm.registerTransition("Hunt", "Hunt", 0);
-			
-			lb.add(fsm);
+			// Première version chasser le Golem avec un fsm et HuntBehaviour mais possible sans fsm
+
+			/*
+			 * FSMBehaviour fsm = new FSMBehaviour(this) { public int onEnd() {
+			 * System.out.println("FSM behaviour terminé"); myAgent.doDelete(); return
+			 * super.onEnd(); } };
+			 * 
+			 * fsm.registerFirstState(explo, "Exploration"); fsm.registerState(new
+			 * HuntBehaviour(this,this.myMap,explo), "Hunt");
+			 * fsm.registerDefaultTransition("Exploration","Hunt");
+			 * fsm.registerTransition("Exploration", "Hunt", 1);
+			 * fsm.registerTransition("Exploration", "Exploration", 0);
+			 * fsm.registerTransition("Hunt", "Exploration", 1);
+			 * fsm.registerTransition("Hunt", "Hunt", 0);
+			 * 
+			 * lb.add(fsm);
+			 */
+			 
 			
 			addBehaviour(new startMyBehaviours(this,lb));
 

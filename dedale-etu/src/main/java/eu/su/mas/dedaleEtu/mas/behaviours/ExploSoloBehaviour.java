@@ -3,7 +3,9 @@ package eu.su.mas.dedaleEtu.mas.behaviours;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
@@ -28,7 +30,7 @@ import jade.core.behaviours.SimpleBehaviour;
  * @author hc
  *
  */
-public class ExploSoloBehaviour extends OneShotBehaviour {
+public class ExploSoloBehaviour extends SimpleBehaviour {
 
 	private static final long serialVersionUID = 8567689731496787661L;
 
@@ -48,11 +50,29 @@ public class ExploSoloBehaviour extends OneShotBehaviour {
 	 */
 	private Set<String> closedNodes;
 	
+	/**
+	 * Edges known
+	 */
 	private ArrayList<ArrayList<String>> edges;
 	
+	/**
+	 * Current observations
+	 */
 	private List<Couple<String,List<Couple<Observation,Integer>>>> lobs;
 	
-	private int end;
+	/**
+	 * Last node visited
+	 */
+	private String lastNode = "";
+	
+	/**
+	 * Set of observations
+	 */
+	private LinkedList<Couple<Integer,List<String>>> lastObs;
+	
+	private int lastObsSize = 1;
+	
+	private int cpt = 0;
 	
 
 	public ExploSoloBehaviour(final AbstractDedaleAgent myagent, MapRepresentation myMap) {
@@ -61,10 +81,14 @@ public class ExploSoloBehaviour extends OneShotBehaviour {
 		this.openNodes=new ArrayList<String>();
 		this.closedNodes=new HashSet<String>();
 		this.edges = new ArrayList<ArrayList<String>>();
+		this.lastObs = new LinkedList<Couple<Integer,List<String>>>();
 	}
 
 	@Override
 	public void action() {
+		cpt++;
+		System.out.println(this.myAgent.getLocalName()+" "+cpt);
+//		System.out.println("Explo "+this.myAgent.getLocalName());
 		if(this.myMap==null)
 			this.myMap= new MapRepresentation();
 		
@@ -74,6 +98,29 @@ public class ExploSoloBehaviour extends OneShotBehaviour {
 		if (myPosition!=null){
 			//List of observable from the agent's current position
 			this.lobs=((AbstractDedaleAgent)this.myAgent).observe();//myPosition
+			
+			List<String> currObs = new ArrayList<String>();
+			
+			for(Couple<String,List<Couple<Observation,Integer>>> l : lobs) {
+				System.out.println("l "+l);
+				List<Couple<Observation, Integer>> l1 = l.getRight();
+				for(Couple<Observation, Integer> c : l1) {
+					if(c.getLeft().toString().equals("Stench"))
+						currObs.add(l.getLeft());
+				}
+			}
+			
+			
+			Couple<Integer,List<String>> c = new Couple<Integer,List<String>>(cpt,currObs);
+			if(c.getRight().size() > 0) {
+				if(lastObs.size() >= lastObsSize) {
+					lastObs.removeFirst();
+					lastObs.add(c);
+				} else {
+					lastObs.add(c);
+				}
+			}
+
 
 			/**
 			 * Just added here to let you see what the agent is doing, otherwise he will be too quick
@@ -186,7 +233,31 @@ public class ExploSoloBehaviour extends OneShotBehaviour {
 				/************************************************
 				 * 				END API CALL ILUSTRATION
 				 *************************************************/
-				end = 0;
+				
+				// Shortest path
+				/*
+				 * System.out.println("position "+myPosition);
+				 * 
+				 * List<String> path = this.myMap.getShortestPath(myPosition, "0_10");
+				 * System.out.println(path);
+				 */
+				
+				// Mauvaise solution interblocage
+				/*
+				 * Iterator<Couple<String, List<Couple<Observation, Integer>>>>
+				 * ite2=lobs.iterator(); if(!lastNode.isBlank()) {
+				 * while(lastNode.equals(nextNode) && ite2.hasNext()) { Couple<String,
+				 * List<Couple<Observation, Integer>>> next = ite2.next(); nextNode =
+				 * next.getLeft(); } }
+				 */
+				
+				if(lastObs.size() > 0) {
+					System.out.println("test "+lastObs.get(0));
+					if(myPosition !=  lastObs.get(0).getRight().get(0))
+						nextNode = lastObs.get(0).getRight().get(0);
+				}
+				
+				//Hunt
 				Iterator<Couple<String, List<Couple<Observation, Integer>>>> ite=lobs.iterator();
 				while(ite.hasNext()) {
 					Couple<String, List<Couple<Observation, Integer>>> next = ite.next();
@@ -196,31 +267,44 @@ public class ExploSoloBehaviour extends OneShotBehaviour {
 					
 					if(stench.size() > 0) {
 						if((stench.get(0).getLeft()).toString().equals("Stench"))
-							System.out.println("Je vais chasser au noeud "+nextNode);
+							System.out.println(this.myAgent.getLocalName()+" va chasser au noeud "+nextNode);
 							nextNode = next.getLeft();
-							end = 1;
 							break;
 					}
 				}
+							
 				((AbstractDedaleAgent)this.myAgent).moveTo(nextNode);
+				lastNode = nextNode;
+				
+				
 			}
 
 		}
 		
 	}
 	
-	@Override
-	public int onEnd() {
-		return 0;
-	}
-	
 	public List<Couple<String, List<Couple<Observation, Integer>>>> getObs() {		
 		return lobs;
 	}
+	
+	public LinkedList<Couple<Integer,List<String>>> getLastObs() {
+		return lastObs;
+	}
+	
+	public void setLastObs(LinkedList<Couple<Integer,List<String>>> lastObsOther) {
+		if(lastObsOther.get(0).getLeft() > lastObs.get(0).getLeft()) {
+			if(lastObs.size() >= lastObsSize) {
+				lastObs.removeFirst();
+				lastObs.add(lastObsOther.get(0));
+			} else {
+				lastObs.add(lastObsOther.get(0));
+			}
+		}
+	}
 
-	/*
-	 * @Override public boolean done() { return finished; }
-	 */
+	
+	@Override public boolean done() { return finished; }
+	 
 
 	public Set<String> getClosedNodes() {
 		return closedNodes;
@@ -260,6 +344,6 @@ public class ExploSoloBehaviour extends OneShotBehaviour {
 			this.myMap.addEdge(e.get(0), e.get(1));
 		}
 	}
-	
+
 	
 }

@@ -4,9 +4,11 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import dataStructures.tuple.Couple;
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
 import jade.core.AID;
 import jade.core.Agent;
@@ -41,6 +43,7 @@ public class SendBehaviour extends TickerBehaviour{
 
 	@Override
 	public void onTick() {
+//		System.out.println("Send "+this.myAgent.getLocalName());
 		ACLMessage ping = new ACLMessage(ACLMessage.REQUEST);
 		ping.setSender(this.myAgent.getAID());
 		ping.setContent("Ping send map");
@@ -63,7 +66,7 @@ public class SendBehaviour extends TickerBehaviour{
 
 		
 		try {
-			Thread.sleep(500);
+			Thread.sleep(200);
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
 		}
@@ -82,7 +85,7 @@ public class SendBehaviour extends TickerBehaviour{
 			msg.setProtocol("MapProtocol");
 	
 			if (myPosition!=""){
-				System.out.println("Agent "+this.myAgent.getLocalName()+ " is trying to reach its friends");
+				//System.out.println("Agent "+this.myAgent.getLocalName()+ " is trying to reach its friends");
 				try {
 					Set<String> closedNodes = explo.getClosedNodes();				
 					Serializable n = (Serializable) closedNodes;
@@ -92,11 +95,15 @@ public class SendBehaviour extends TickerBehaviour{
 					
 					List<String> openNodes = explo.getOpenNodes();
 					Serializable o = (Serializable) openNodes;
+					
+					LinkedList<Couple<Integer,List<String>>> lastObs = explo.getLastObs();
+					Serializable l = (Serializable) lastObs;
 									
 					ArrayList<Serializable> messageContent = new ArrayList<Serializable>();
 					messageContent.add(n);
 					messageContent.add(e);
 					messageContent.add(o);
+					messageContent.add(l);
 					
 					//System.out.println("MESSAGE CONTENT "+messageContent);
 					
