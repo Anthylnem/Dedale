@@ -43,6 +43,10 @@ public class SendBehaviour extends TickerBehaviour{
 
 	@Override
 	public void onTick() {
+		if(explo.getHunt())
+			return;
+
+		
 //		System.out.println("Send "+this.myAgent.getLocalName());
 		ACLMessage ping = new ACLMessage(ACLMessage.REQUEST);
 		ping.setSender(this.myAgent.getAID());
@@ -59,14 +63,14 @@ public class SendBehaviour extends TickerBehaviour{
 					ping.addReceiver(new AID(name,AID.ISLOCALNAME));
 				
 					((AbstractDedaleAgent)this.myAgent).sendMessage(ping);
-					System.out.println(this.myAgent.getLocalName()+" a envoyé le ping"+" a "+name);
+					//System.out.println(this.myAgent.getLocalName()+" a envoyé le ping"+" a "+name);
 				}
 			}
 		}
 
 		
 		try {
-			Thread.sleep(200);
+			Thread.sleep(100);
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
 		}
@@ -75,7 +79,7 @@ public class SendBehaviour extends TickerBehaviour{
 		ACLMessage ackPingMsg = this.myAgent.receive(ackPingTemplate);
 		
 		if (ackPingMsg != null) {
-			System.out.println(this.myAgent.getLocalName()+" a reçu le ackPing ");
+			//System.out.println(this.myAgent.getLocalName()+" a reçu le ackPing ");
 			
 			String myPosition=((AbstractDedaleAgent)this.myAgent).getCurrentPosition();
 	
@@ -125,10 +129,10 @@ public class SendBehaviour extends TickerBehaviour{
 						String name = s.getName();
 						
 						//System.out.println(name);
-						
-						msg.addReceiver(new AID(name,AID.ISLOCALNAME));
-						
-						((AbstractDedaleAgent)this.myAgent).sendMessage(msg);
+						if(!name.equals(this.myAgent.getLocalName())) {
+							ping.addReceiver(new AID(name,AID.ISLOCALNAME));
+							((AbstractDedaleAgent)this.myAgent).sendMessage(msg);
+						}
 					}
 				}
 	

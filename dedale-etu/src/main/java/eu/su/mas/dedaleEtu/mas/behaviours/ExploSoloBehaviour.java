@@ -74,6 +74,7 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 	
 	private int cpt = 0;
 	
+	private boolean hunt = false;
 
 	public ExploSoloBehaviour(final AbstractDedaleAgent myagent, MapRepresentation myMap) {
 		super(myagent);
@@ -87,7 +88,7 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 	@Override
 	public void action() {
 		cpt++;
-		System.out.println(this.myAgent.getLocalName()+" "+cpt);
+		//System.out.println(this.myAgent.getLocalName()+" "+cpt);
 //		System.out.println("Explo "+this.myAgent.getLocalName());
 		if(this.myMap==null)
 			this.myMap= new MapRepresentation();
@@ -102,7 +103,7 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 			List<String> currObs = new ArrayList<String>();
 			
 			for(Couple<String,List<Couple<Observation,Integer>>> l : lobs) {
-				System.out.println("l "+l);
+				//System.out.println("l "+l);
 				List<Couple<Observation, Integer>> l1 = l.getRight();
 				for(Couple<Observation, Integer> c : l1) {
 					if(c.getLeft().toString().equals("Stench"))
@@ -126,7 +127,7 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 			 * Just added here to let you see what the agent is doing, otherwise he will be too quick
 			 */
 			try {
-				this.myAgent.doWait(1000);
+				this.myAgent.doWait(500);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -169,7 +170,7 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 			//3) while openNodes is not empty, continues.
 			if (this.openNodes.isEmpty()){
 				//Explo finished
-				finished=true;
+				//finished=true;
 				System.out.println("Exploration successfully done, behaviour removed.");
 			}else{
 				//4) select next move.
@@ -178,7 +179,11 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 				if (nextNode==null){
 					//no directly accessible openNode
 					//chose one, compute the path and take the first step.
-					nextNode=this.myMap.getShortestPath(myPosition, this.openNodes.get(0)).get(0);
+					System.out.println("test"+this.myMap.getShortestPath(myPosition, this.openNodes.get(0)));
+					List<String> shortestPath = this.myMap.getShortestPath(myPosition, this.openNodes.get(0));
+					if(shortestPath.isEmpty())
+						shortestPath.add(myPosition);
+					nextNode= shortestPath.get(0);
 				}
 				
 				
@@ -251,10 +256,15 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 				 * next.getLeft(); } }
 				 */
 				
+				hunt = false;
+				
 				if(lastObs.size() > 0) {
-					System.out.println("test "+lastObs.get(0));
-					if(myPosition !=  lastObs.get(0).getRight().get(0))
-						nextNode = lastObs.get(0).getRight().get(0);
+					//System.out.println("test "+lastObs.get(0));
+					if(!lastObs.isEmpty() && myPosition !=  lastObs.get(0).getRight().get(0)) {
+						System.out.println("HELLO "+this.myMap.getShortestPath(myPosition,lastObs.get(0).getRight().get(0)));
+						nextNode = this.myMap.getShortestPath(myPosition,lastObs.get(0).getRight().get(0)).get(0);
+						hunt = true;
+					}
 				}
 				
 				//Hunt
@@ -267,20 +277,32 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 					
 					if(stench.size() > 0) {
 						if((stench.get(0).getLeft()).toString().equals("Stench"))
-							System.out.println(this.myAgent.getLocalName()+" va chasser au noeud "+nextNode);
 							nextNode = next.getLeft();
+							System.out.println(this.myAgent.getLocalName()+" va chasser au noeud "+nextNode);
+							hunt = true;
 							break;
 					}
 				}
-							
+				
+				
+				if(!lastObs.isEmpty() && myPosition.equals(lastObs.get(0).getRight().get(0))) {
+					lastObs = new LinkedList<Couple<Integer,List<String>>>();
+					System.out.println("lastObs"+lastObs);
+				}
+			
+				//System.out.println("nextNode"+nextNode);
 				((AbstractDedaleAgent)this.myAgent).moveTo(nextNode);
-				lastNode = nextNode;
+				//lastNode = nextNode;
 				
 				
 			}
 
 		}
 		
+	}
+	
+	public boolean getHunt() {
+		return hunt;
 	}
 	
 	public List<Couple<String, List<Couple<Observation, Integer>>>> getObs() {		
@@ -292,7 +314,7 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 	}
 	
 	public void setLastObs(LinkedList<Couple<Integer,List<String>>> lastObsOther) {
-		if(lastObsOther.get(0).getLeft() > lastObs.get(0).getLeft()) {
+		if(!lastObsOther.isEmpty() && !lastObs.isEmpty() && (lastObsOther.get(0).getLeft() > lastObs.get(0).getLeft())) {
 			if(lastObs.size() >= lastObsSize) {
 				lastObs.removeFirst();
 				lastObs.add(lastObsOther.get(0));
@@ -333,7 +355,7 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 	}
 
 	public void setEdges(ArrayList<ArrayList<String>> edges) {
-		System.out.println("edges "+myAgent.getLocalName()+" "+edges);
+		//System.out.println("edges "+myAgent.getLocalName()+" "+edges);
 		
 		for(ArrayList<String> e : edges) {
 			//System.out.println("ALLO"+closedNodes+" "+openNodes+" "+myAgent.getLocalName());

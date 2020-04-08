@@ -49,17 +49,17 @@ public class ReceiveBehaviour extends SimpleBehaviour{
 		if (pingMsg != null) {
 			AID sender = pingMsg.getSender();
 			String name = sender.getLocalName();
-			System.out.println(this.myAgent.getLocalName()+" a reçu le ping ");
+			//System.out.println(this.myAgent.getLocalName()+" a reçu le ping ");
 		
 			ACLMessage ackPing = new ACLMessage(ACLMessage.AGREE);
 			ackPing.setSender(this.myAgent.getAID());
 			ackPing.setContent("ackPing send map");
 			ackPing.addReceiver(new AID(name,AID.ISLOCALNAME));
 			((AbstractDedaleAgent)this.myAgent).sendMessage(ackPing);
-			System.out.println(this.myAgent.getLocalName()+" a envoyé le ackPing.");			
+			//System.out.println(this.myAgent.getLocalName()+" a envoyé le ackPing.");			
 			
 			try {
-				Thread.sleep(200);
+				Thread.sleep(100);
 			} catch (InterruptedException e1) {
 				e1.printStackTrace();
 			}
@@ -82,7 +82,7 @@ public class ReceiveBehaviour extends SimpleBehaviour{
 					explo.setEdges(edges);
 					explo.setLastObs(lastObsOther);
 					
-					System.out.println("Agent "+this.myAgent.getLocalName()+ " a reçu le message.");
+					//System.out.println("Agent "+this.myAgent.getLocalName()+ " a reçu le message.");
 					//System.out.println(this.myAgent.getLocalName()+"<----Result received from "+msg.getSender().getLocalName()+" ,content= "+msg.getContentObject());
 				} catch (UnreadableException e) {
 					// TODO Auto-generated catch block
