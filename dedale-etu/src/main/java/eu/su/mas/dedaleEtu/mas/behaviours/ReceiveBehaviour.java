@@ -10,6 +10,7 @@ import eu.su.mas.dedale.mas.AbstractDedaleAgent;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.SimpleBehaviour;
+import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.UnreadableException;
@@ -21,7 +22,7 @@ import jade.util.leap.Serializable;
  * @author Cédric Herpson
  *
  */
-public class ReceiveBehaviour extends SimpleBehaviour{
+public class ReceiveBehaviour extends TickerBehaviour{
 
 	private static final long serialVersionUID = 9088209402507795289L;
 
@@ -34,14 +35,21 @@ public class ReceiveBehaviour extends SimpleBehaviour{
 	 * @param myagent
 	 */
 	public ReceiveBehaviour(final Agent myagent, ExploSoloBehaviour explo) {
-		super(myagent);
+		super(myagent,3000);
 		this.explo = explo;
 
 	}
 
 
 	@SuppressWarnings("unchecked")
-	public void action() {
+	public void onTick() {
+		
+		if(explo.getHunt()) {
+			//System.out.println("En chasse");
+			return;
+		}
+		
+		System.out.println("Receive "+this.myAgent.getLocalName());
 		
 		MessageTemplate pingTemplate = MessageTemplate.MatchPerformative(ACLMessage.REQUEST);
 		ACLMessage pingMsg = this.myAgent.receive(pingTemplate);
@@ -92,10 +100,6 @@ public class ReceiveBehaviour extends SimpleBehaviour{
 				block();// the behaviour goes to sleep until the arrival of a new message in the agent's Inbox.
 			}
 		}
-	}
-
-	public boolean done() {
-		return finished;
 	}
 
 }

@@ -43,11 +43,13 @@ public class SendBehaviour extends TickerBehaviour{
 
 	@Override
 	public void onTick() {
-		if(explo.getHunt())
+		if(explo.getHunt()) {
+			//System.out.println("En chasse");
 			return;
-
+		}	
 		
-//		System.out.println("Send "+this.myAgent.getLocalName());
+		
+		System.out.println("Send "+this.myAgent.getLocalName());
 		ACLMessage ping = new ACLMessage(ACLMessage.REQUEST);
 		ping.setSender(this.myAgent.getAID());
 		ping.setContent("Ping send map");

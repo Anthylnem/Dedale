@@ -171,8 +171,29 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 			if (this.openNodes.isEmpty()){
 				//Explo finished
 				//finished=true;
-				System.out.println("Exploration successfully done, behaviour removed.");
-			}else{
+				//System.out.println("Exploration successfully done, behaviour removed.");
+				
+				Random rand = new Random();
+				int index = rand.nextInt(closedNodes.size());
+				int cpt = 0 ;
+				String node = "";
+				
+				for (Iterator<String> it = closedNodes.iterator(); it.hasNext(); ) {
+					if(cpt >= index) {
+						 node = it.next();
+						 if(node.equals(myPosition))
+							 node = it.next();
+						 break;
+					}
+					node = it.next();
+					cpt++;
+			    }
+
+				List<String> path = this.myMap.getShortestPath(myPosition,node);
+				if(!path.isEmpty())
+					nextNode = path.get(0);
+
+			}	
 				//4) select next move.
 				//4.1 If there exist one open node directly reachable, go for it,
 				//	 otherwise choose one from the openNode list, compute the shortestPath and go for it
@@ -248,20 +269,24 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 				 */
 				
 				// Mauvaise solution interblocage
-				/*
-				 * Iterator<Couple<String, List<Couple<Observation, Integer>>>>
-				 * ite2=lobs.iterator(); if(!lastNode.isBlank()) {
-				 * while(lastNode.equals(nextNode) && ite2.hasNext()) { Couple<String,
-				 * List<Couple<Observation, Integer>>> next = ite2.next(); nextNode =
-				 * next.getLeft(); } }
-				 */
+				
+				Iterator<Couple<String, List<Couple<Observation, Integer>>>> ite2=lobs.iterator();
+					if(!lastNode.isBlank()) {
+						while(!myPosition.equals(nextNode) && lastNode.equals(nextNode) && ite2.hasNext()) {
+							Couple<String, List<Couple<Observation, Integer>>> next = ite2.next();
+							System.out.println(this.myAgent.getLocalName()+" (avant) nextnode: "+nextNode+" lastnode:"+lastNode);
+							nextNode = next.getLeft();
+							System.out.println(this.myAgent.getLocalName()+" (après) nextnode: "+nextNode+" lastnode:"+lastNode);
+					}
+				}
+				 
 				
 				hunt = false;
 				
 				if(lastObs.size() > 0) {
 					//System.out.println("test "+lastObs.get(0));
 					if(!lastObs.isEmpty() && myPosition !=  lastObs.get(0).getRight().get(0)) {
-						System.out.println("HELLO "+this.myMap.getShortestPath(myPosition,lastObs.get(0).getRight().get(0)));
+						//System.out.println("HELLO "+this.myMap.getShortestPath(myPosition,lastObs.get(0).getRight().get(0)));
 						nextNode = this.myMap.getShortestPath(myPosition,lastObs.get(0).getRight().get(0)).get(0);
 						hunt = true;
 					}
@@ -269,33 +294,38 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 				
 				//Hunt
 				Iterator<Couple<String, List<Couple<Observation, Integer>>>> ite=lobs.iterator();
+				
+				List<Couple<String, List<Couple<Observation, Integer>>>> stench = new ArrayList<>();
 				while(ite.hasNext()) {
 					Couple<String, List<Couple<Observation, Integer>>> next = ite.next();
-					String nodeId = next.getLeft();
-					List<Couple<Observation, Integer>> stench = next.getRight();
-					//System.out.println(nodeId+" "+stench);
-					
-					if(stench.size() > 0) {
-						if((stench.get(0).getLeft()).toString().equals("Stench"))
-							nextNode = next.getLeft();
-							System.out.println(this.myAgent.getLocalName()+" va chasser au noeud "+nextNode);
-							hunt = true;
-							break;
+					//String nodeId = next.getLeft();
+					//System.out.println("next"+next);
+					if(!next.getRight().isEmpty()) {
+						if((next.getRight()).get(0).getLeft().toString().equals("Stench")) {
+							stench.add(next);
+						}
 					}
+					//System.out.println(stench);
 				}
+				if(stench.size() > 0) {
+					Random rand = new Random();
+					int index = rand.nextInt(stench.size());
+					nextNode = stench.get(index).getLeft();
+					System.out.println(this.myAgent.getLocalName()+" va chasser au noeud "+nextNode);
+					hunt = true;
+				}
+					
 				
 				
 				if(!lastObs.isEmpty() && myPosition.equals(lastObs.get(0).getRight().get(0))) {
 					lastObs = new LinkedList<Couple<Integer,List<String>>>();
-					System.out.println("lastObs"+lastObs);
+					//System.out.println("lastObs"+lastObs);
 				}
 			
 				//System.out.println("nextNode"+nextNode);
 				((AbstractDedaleAgent)this.myAgent).moveTo(nextNode);
-				//lastNode = nextNode;
+				lastNode = nextNode;
 				
-				
-			}
 
 		}
 		
