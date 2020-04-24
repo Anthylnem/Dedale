@@ -43,13 +43,17 @@ public class ReceiveBehaviour extends TickerBehaviour{
 
 	@SuppressWarnings("unchecked")
 	public void onTick() {
-		
+		/*
 		if(explo.getHunt()) {
 			//System.out.println("En chasse");
 			return;
+		}*/
+		
+		if(explo.done()) {
+			return;
 		}
 		
-		System.out.println("Receive "+this.myAgent.getLocalName());
+		//System.out.println("Receive "+this.myAgent.getLocalName());
 		
 		MessageTemplate pingTemplate = MessageTemplate.MatchPerformative(ACLMessage.REQUEST);
 		ACLMessage pingMsg = this.myAgent.receive(pingTemplate);
@@ -67,7 +71,7 @@ public class ReceiveBehaviour extends TickerBehaviour{
 			//System.out.println(this.myAgent.getLocalName()+" a envoyé le ackPing.");			
 			
 			try {
-				Thread.sleep(100);
+				Thread.sleep(500);
 			} catch (InterruptedException e1) {
 				e1.printStackTrace();
 			}

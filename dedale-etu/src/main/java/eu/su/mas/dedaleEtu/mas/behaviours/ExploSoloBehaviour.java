@@ -74,8 +74,14 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 	
 	private int cpt = 0;
 	
+	private int stenchIt = 0;
+	
+	private int notStenchIt = 0;
+	
 	private boolean hunt = false;
-
+	
+	private String lastPosition;
+	
 	public ExploSoloBehaviour(final AbstractDedaleAgent myagent, MapRepresentation myMap) {
 		super(myagent);
 		this.myMap=myMap;
@@ -88,6 +94,7 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 	@Override
 	public void action() {
 		cpt++;
+		
 		//System.out.println(this.myAgent.getLocalName()+" "+cpt);
 //		System.out.println("Explo "+this.myAgent.getLocalName());
 		if(this.myMap==null)
@@ -95,6 +102,8 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 		
 		//0) Retrieve the current position
 		String myPosition=((AbstractDedaleAgent)this.myAgent).getCurrentPosition();
+		if(cpt == 1)
+			lastPosition = myPosition;
 	
 		if (myPosition!=null){
 			//List of observable from the agent's current position
@@ -173,25 +182,7 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 				//finished=true;
 				//System.out.println("Exploration successfully done, behaviour removed.");
 				
-				Random rand = new Random();
-				int index = rand.nextInt(closedNodes.size());
-				int cpt = 0 ;
-				String node = "";
-				
-				for (Iterator<String> it = closedNodes.iterator(); it.hasNext(); ) {
-					if(cpt >= index) {
-						 node = it.next();
-						 if(node.equals(myPosition))
-							 node = it.next();
-						 break;
-					}
-					node = it.next();
-					cpt++;
-			    }
-
-				List<String> path = this.myMap.getShortestPath(myPosition,node);
-				if(!path.isEmpty())
-					nextNode = path.get(0);
+				nextNode = randomPosition(myPosition);
 
 			}	
 				//4) select next move.
@@ -200,7 +191,7 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 				if (nextNode==null){
 					//no directly accessible openNode
 					//chose one, compute the path and take the first step.
-					System.out.println("test"+this.myMap.getShortestPath(myPosition, this.openNodes.get(0)));
+					//System.out.println("test"+this.myMap.getShortestPath(myPosition, this.openNodes.get(0)));
 					List<String> shortestPath = this.myMap.getShortestPath(myPosition, this.openNodes.get(0));
 					if(shortestPath.isEmpty())
 						shortestPath.add(myPosition);
@@ -260,26 +251,42 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 				 * 				END API CALL ILUSTRATION
 				 *************************************************/
 				
-				// Shortest path
-				/*
-				 * System.out.println("position "+myPosition);
-				 * 
-				 * List<String> path = this.myMap.getShortestPath(myPosition, "0_10");
-				 * System.out.println(path);
-				 */
-				
 				// Mauvaise solution interblocage
-				
+				/*
 				Iterator<Couple<String, List<Couple<Observation, Integer>>>> ite2=lobs.iterator();
-					if(!lastNode.isBlank()) {
-						while(!myPosition.equals(nextNode) && lastNode.equals(nextNode) && ite2.hasNext()) {
-							Couple<String, List<Couple<Observation, Integer>>> next = ite2.next();
-							System.out.println(this.myAgent.getLocalName()+" (avant) nextnode: "+nextNode+" lastnode:"+lastNode);
-							nextNode = next.getLeft();
-							System.out.println(this.myAgent.getLocalName()+" (après) nextnode: "+nextNode+" lastnode:"+lastNode);
+				if(!lastNode.isBlank()) {
+					while(!myPosition.equals(nextNode) && lastNode.equals(nextNode) && ite2.hasNext()) {
+						Couple<String, List<Couple<Observation, Integer>>> next = ite2.next();
+						System.out.println(this.myAgent.getLocalName()+" (avant) nextnode: "+nextNode+" lastnode:"+lastNode);
+						nextNode = next.getLeft();
+						System.out.println(this.myAgent.getLocalName()+" (après) nextnode: "+nextNode+" lastnode:"+lastNode);
 					}
+				}*/
+				
+				// Interblocage
+				
+				Random rand1 = new Random();
+				int index1 = rand1.nextInt(lobs.size());
+				int cpt = 0;
+				//String node = "";
+				
+				if(!lastNode.isBlank() && lastNode.equals(nextNode)) {
+					System.out.println(this.myAgent.getLocalName()+" (avant) nextnode: "+nextNode+" lastnode:"+lastNode);
+					for (Iterator<Couple<String, List<Couple<Observation, Integer>>>> it = lobs.iterator(); it.hasNext(); ) {
+						Couple<String, List<Couple<Observation, Integer>>> next = it.next();
+						if(cpt >= index1) {
+							 nextNode = next.getLeft();
+							 if(nextNode.equals(myPosition))
+								 nextNode = it.next().getLeft();
+							 break;
+						}
+						nextNode = next.getLeft();
+						cpt++;
+				    }
+					System.out.println(this.myAgent.getLocalName()+" (après) nextnode: "+nextNode+" lastnode:"+lastNode);
 				}
-				 
+				
+				//Hunt
 				
 				hunt = false;
 				
@@ -292,7 +299,7 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 					}
 				}
 				
-				//Hunt
+				
 				Iterator<Couple<String, List<Couple<Observation, Integer>>>> ite=lobs.iterator();
 				
 				List<Couple<String, List<Couple<Observation, Integer>>>> stench = new ArrayList<>();
@@ -323,6 +330,55 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 				}
 			
 				//System.out.println("nextNode"+nextNode);
+				
+				
+				// Arrêter les behaviours quand le golem est bloqué
+				
+				boolean myPositionStench = false;
+				
+				Iterator<Couple<String, List<Couple<Observation, Integer>>>> ite1 = lobs.iterator();
+				
+				while(ite1.hasNext()) {
+					Couple<String, List<Couple<Observation, Integer>>> next = ite1.next();
+					if(!next.getRight().isEmpty() && next.getLeft().equals(myPosition)) {
+						if((next.getRight()).get(0).getLeft().toString().equals("Stench")) {
+							myPositionStench = true;
+							break;
+						}
+					}
+				}
+				
+				if(myPosition.equals(nextNode)) {
+					if(stenchIt == 0) {
+						lastPosition = myPosition;
+					}
+					stenchIt++;
+					
+				} else if(myPosition.equals(lastPosition) && myPositionStench) {
+						stenchIt++;
+						System.out.println(this.myAgent.getName()+" "+stenchIt);
+						if(stenchIt >= 10) {
+							finished = true;
+							System.out.println(this.myAgent.getName()+ " A FINI");
+						}
+				} else if(!myPosition.equals(lastPosition)) {
+						stenchIt = 0;
+				}
+				
+				//S'éloigner quand l'agent veut chasser un golem déjà bloqué
+				if(!myPositionStench && !currObs.isEmpty()) {
+					if(notStenchIt == 0) {
+						lastPosition = myPosition;
+					}
+					notStenchIt++;
+					System.out.println("NotStenchIt "+notStenchIt +" "+this.myAgent.getLocalName());
+					if(notStenchIt >= 10) {
+						nextNode = randomPosition(myPosition);
+						notStenchIt = 0;
+					}
+				}
+				
+				
 				((AbstractDedaleAgent)this.myAgent).moveTo(nextNode);
 				lastNode = nextNode;
 				
@@ -366,23 +422,25 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 		return openNodes;
 	}
 	
-	public void majNodes(Set<String> closedNodes,List<String> openNodes) {
-		for(String s: closedNodes) {
-			this.myMap.addNode(s,MapAttribute.closed,true);
-			this.closedNodes.add(s);
-			this.openNodes.remove(s);
-
-		}
-		
-		for(String s: openNodes) {
-			this.myMap.addNode(s,MapAttribute.open,true);
-			this.openNodes.add(s);
-		}
-	}
-
 	public ArrayList<ArrayList<String>> getEdges() {
 		return edges;
 	}
+	
+	public void majNodes(Set<String> closedNodes,List<String> openNodes) {
+		for(String s: closedNodes) {
+			this.myMap.addNode(s,MapAttribute.closed);
+			this.closedNodes.add(s);
+			this.openNodes.remove(s);
+		}
+		
+		for(String s: openNodes) {
+			this.myMap.addNode(s,MapAttribute.open);
+			if(!this.closedNodes.contains(s))
+				this.openNodes.add(s);
+		}
+	}
+
+
 
 	public void setEdges(ArrayList<ArrayList<String>> edges) {
 		//System.out.println("edges "+myAgent.getLocalName()+" "+edges);
@@ -394,8 +452,34 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 			//this.myMap.addNode(e.get(1), MapAttribute.open);
 
 			this.myMap.addEdge(e.get(0), e.get(1));
+			this.edges.add(e);
 		}
 	}
-
+	
+	public String randomPosition(String myPosition) {
+		Random rand = new Random();
+		int index = rand.nextInt(closedNodes.size());
+		int cpt = 0 ;
+		String node = "";
+		
+		for (Iterator<String> it = closedNodes.iterator(); it.hasNext(); ) {
+			if(cpt >= index) {
+				 node = it.next();
+				 if(node.equals(myPosition))
+					 node = it.next();
+				 break;
+			}
+			node = it.next();
+			cpt++;
+	    }
+		List<String> shortestPath = this.myMap.getShortestPath(myPosition, node);
+		if(shortestPath.isEmpty()) {
+			shortestPath.add(myPosition);
+			return shortestPath.get(0);
+		}
+		
+		return shortestPath.get(0);
+		
+	}
 	
 }

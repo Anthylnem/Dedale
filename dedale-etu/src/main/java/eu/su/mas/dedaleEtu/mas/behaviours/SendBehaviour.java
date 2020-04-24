@@ -43,13 +43,16 @@ public class SendBehaviour extends TickerBehaviour{
 
 	@Override
 	public void onTick() {
+		/*
 		if(explo.getHunt()) {
 			//System.out.println("En chasse");
 			return;
-		}	
+		}*/
+		if(explo.done()) {
+			return;
+		}
 		
-		
-		System.out.println("Send "+this.myAgent.getLocalName());
+		//sSystem.out.println("Send "+this.myAgent.getLocalName());
 		ACLMessage ping = new ACLMessage(ACLMessage.REQUEST);
 		ping.setSender(this.myAgent.getAID());
 		ping.setContent("Ping send map");
@@ -72,7 +75,7 @@ public class SendBehaviour extends TickerBehaviour{
 
 		
 		try {
-			Thread.sleep(100);
+			Thread.sleep(500);
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
 		}
@@ -132,7 +135,7 @@ public class SendBehaviour extends TickerBehaviour{
 						
 						//System.out.println(name);
 						if(!name.equals(this.myAgent.getLocalName())) {
-							ping.addReceiver(new AID(name,AID.ISLOCALNAME));
+							msg.addReceiver(new AID(name,AID.ISLOCALNAME));
 							((AbstractDedaleAgent)this.myAgent).sendMessage(msg);
 						}
 					}
