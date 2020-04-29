@@ -107,12 +107,16 @@ public class SendBehaviour extends TickerBehaviour{
 					
 					LinkedList<Couple<Integer,List<String>>> lastObs = explo.getLastObs();
 					Serializable l = (Serializable) lastObs;
+					
+					List<String> blackList = explo.getBlackList();
+					Serializable b = (Serializable) blackList;
 									
 					ArrayList<Serializable> messageContent = new ArrayList<Serializable>();
 					messageContent.add(n);
 					messageContent.add(e);
 					messageContent.add(o);
 					messageContent.add(l);
+					messageContent.add(b);
 					
 					//System.out.println("MESSAGE CONTENT "+messageContent);
 					

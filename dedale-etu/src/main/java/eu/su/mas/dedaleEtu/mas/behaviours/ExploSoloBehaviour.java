@@ -82,6 +82,9 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 	
 	private String lastPosition;
 	
+	// Liste des noeuds où ne plus retourner (là où un golem est bloqué)
+	private List<String> blackList = new ArrayList<String>();
+	
 	public ExploSoloBehaviour(final AbstractDedaleAgent myagent, MapRepresentation myMap) {
 		super(myagent);
 		this.myMap=myMap;
@@ -191,7 +194,6 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 				if (nextNode==null){
 					//no directly accessible openNode
 					//chose one, compute the path and take the first step.
-					//System.out.println("test"+this.myMap.getShortestPath(myPosition, this.openNodes.get(0)));
 					List<String> shortestPath = this.myMap.getShortestPath(myPosition, this.openNodes.get(0));
 					if(shortestPath.isEmpty())
 						shortestPath.add(myPosition);
@@ -270,7 +272,7 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 				int cpt = 0;
 				//String node = "";
 				
-				if(!lastNode.isBlank() && lastNode.equals(nextNode)) {
+				if(!lastNode.isBlank() && lastNode.equals(nextNode) && currObs.isEmpty()) {
 					System.out.println(this.myAgent.getLocalName()+" (avant) nextnode: "+nextNode+" lastnode:"+lastNode);
 					for (Iterator<Couple<String, List<Couple<Observation, Integer>>>> it = lobs.iterator(); it.hasNext(); ) {
 						Couple<String, List<Couple<Observation, Integer>>> next = it.next();
@@ -293,8 +295,15 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 				if(lastObs.size() > 0) {
 					//System.out.println("test "+lastObs.get(0));
 					if(!lastObs.isEmpty() && myPosition !=  lastObs.get(0).getRight().get(0)) {
-						//System.out.println("HELLO "+this.myMap.getShortestPath(myPosition,lastObs.get(0).getRight().get(0)));
-						nextNode = this.myMap.getShortestPath(myPosition,lastObs.get(0).getRight().get(0)).get(0);
+						
+						Couple<Integer, List<String>> a = lastObs.get(0);
+						List<String> aba = this.myMap.getShortestPath(myPosition,lastObs.get(0).getRight().get(0));
+						
+						if(!this.myMap.getShortestPath(myPosition,lastObs.get(0).getRight().get(0)).isEmpty())
+							nextNode = this.myMap.getShortestPath(myPosition,lastObs.get(0).getRight().get(0)).get(0);
+						else
+							nextNode = randomPosition(myPosition);
+						
 						hunt = true;
 					}
 				}
@@ -305,15 +314,13 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 				List<Couple<String, List<Couple<Observation, Integer>>>> stench = new ArrayList<>();
 				while(ite.hasNext()) {
 					Couple<String, List<Couple<Observation, Integer>>> next = ite.next();
-					//String nodeId = next.getLeft();
-					//System.out.println("next"+next);
 					if(!next.getRight().isEmpty()) {
 						if((next.getRight()).get(0).getLeft().toString().equals("Stench")) {
 							stench.add(next);
 						}
 					}
-					//System.out.println(stench);
 				}
+				
 				if(stench.size() > 0) {
 					Random rand = new Random();
 					int index = rand.nextInt(stench.size());
@@ -359,28 +366,58 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 						System.out.println(this.myAgent.getName()+" "+stenchIt);
 						if(stenchIt >= 10) {
 							finished = true;
-							System.out.println(this.myAgent.getName()+ " A FINI");
+							System.out.println(this.myAgent.getName()+ " A FINI ##########################################################################################################################################");
 						}
 				} else if(!myPosition.equals(lastPosition)) {
 						stenchIt = 0;
 				}
 				
-				//S'éloigner quand l'agent veut chasser un golem déjà bloqué
-				if(!myPositionStench && !currObs.isEmpty()) {
+				// S'éloigner quand l'agent veut chasser un golem déjà bloqué et
+				// mettre dans la blackList les positions autour où il y a un stench
+				
+				boolean inBlackList = true;
+				for(Couple<String, List<Couple<Observation, Integer>>> s : stench) {
+					if(!blackList.contains(s.getLeft())) {
+						inBlackList = false;
+						break;
+					}
+				}
+				
+				
+				if(!myPositionStench && !currObs.isEmpty() && !inBlackList) {
 					if(notStenchIt == 0) {
 						lastPosition = myPosition;
 					}
 					notStenchIt++;
 					System.out.println("NotStenchIt "+notStenchIt +" "+this.myAgent.getLocalName());
+					System.out.println("currObs "+currObs);
 					if(notStenchIt >= 10) {
+						for(Couple<String, List<Couple<Observation, Integer>>> s : stench) {
+							if(!this.blackList.contains(s.getLeft()))
+								blackList.add(s.getLeft());
+							removeNode(s.getLeft());
+							//System.out.println(s);
+						}
 						nextNode = randomPosition(myPosition);
+						notStenchIt = 0;
+					}
+					
+					if(!myPosition.equals(lastPosition)) {
 						notStenchIt = 0;
 					}
 				}
 				
+				/* //Ancienne solution
+				// Empêcher l'agent de retourner sur une position dans la blacklist
+				if(blackList.contains(nextNode))
+					nextNode = randomPosition(myPosition);
+				 */
 				
 				((AbstractDedaleAgent)this.myAgent).moveTo(nextNode);
 				lastNode = nextNode;
+				
+				System.out.println(this.myAgent.getLocalName()+" BLACKLIST "+blackList);
+
 				
 
 		}
@@ -414,6 +451,10 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 	@Override public boolean done() { return finished; }
 	 
 
+	public List<String> getBlackList() {
+		return blackList;
+	}
+	
 	public Set<String> getClosedNodes() {
 		return closedNodes;
 	}
@@ -426,7 +467,20 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 		return edges;
 	}
 	
-	public void majNodes(Set<String> closedNodes,List<String> openNodes) {
+	public void removeNode(String node) {
+		System.out.println("SALUT "+node);
+		openNodes.remove(node);
+		closedNodes.remove(node);
+		myMap.removeNode(node);
+	}
+	
+	public void majNodes(Set<String> closedNodes, List<String> openNodes, List<String> blackList) {
+		for(String n : blackList) {
+			if(!this.blackList.contains(n))
+				this.blackList.add(n);
+			removeNode(n);
+		}
+		
 		for(String s: closedNodes) {
 			this.myMap.addNode(s,MapAttribute.closed);
 			this.closedNodes.add(s);
@@ -465,7 +519,7 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 		for (Iterator<String> it = closedNodes.iterator(); it.hasNext(); ) {
 			if(cpt >= index) {
 				 node = it.next();
-				 if(node.equals(myPosition))
+				 while(node.equals(myPosition) || blackList.contains(node))
 					 node = it.next();
 				 break;
 			}

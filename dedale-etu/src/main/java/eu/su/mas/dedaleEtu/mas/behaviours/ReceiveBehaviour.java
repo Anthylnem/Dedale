@@ -89,8 +89,9 @@ public class ReceiveBehaviour extends TickerBehaviour{
 					ArrayList<ArrayList<String>> edges = (ArrayList<ArrayList<String>>) messageContent.get(1);
 					List<String> openNodes = (List<String>) messageContent.get(2);
 					LinkedList<Couple<Integer,List<String>>> lastObsOther = (LinkedList<Couple<Integer,List<String>>>) messageContent.get(3);
+					List<String> blackList = (List<String>) messageContent.get(4);
 					
-					explo.majNodes(closedNodes,openNodes);
+					explo.majNodes(closedNodes, openNodes, blackList);
 					explo.setEdges(edges);
 					explo.setLastObs(lastObsOther);
 					

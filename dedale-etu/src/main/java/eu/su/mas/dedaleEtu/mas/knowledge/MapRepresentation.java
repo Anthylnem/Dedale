@@ -100,6 +100,10 @@ public class MapRepresentation implements Serializable {
 		n.setAttribute("ui.class", mapAttribute.toString()+"Send");
 		n.setAttribute("ui.label",id);
 	}
+	
+	public void removeNode(String id) {
+		g.removeNode(id);
+	}
 
 	/**
 	 * Add the edge if not already existing.
@@ -131,6 +135,8 @@ public class MapRepresentation implements Serializable {
 		dijkstra.init(g);
 		dijkstra.setSource(g.getNode(idFrom));
 		dijkstra.compute();//compute the distance to all nodes from idFrom
+		System.out.println("idto "+idTo);
+		System.out.println("GETNODE "+g.getNode(idTo));
 		List<Node> path=dijkstra.getPath(g.getNode(idTo)).getNodePath(); //the shortest path from idFrom to idTo
 		Iterator<Node> iter=path.iterator();
 		while (iter.hasNext()){
