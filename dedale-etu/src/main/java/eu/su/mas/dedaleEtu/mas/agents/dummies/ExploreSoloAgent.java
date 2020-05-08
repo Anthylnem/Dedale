@@ -6,9 +6,11 @@ import java.util.List;
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
 import eu.su.mas.dedale.mas.agent.behaviours.startMyBehaviours;
 import eu.su.mas.dedaleEtu.mas.behaviours.SendBehaviour;
+import eu.su.mas.dedaleEtu.mas.behaviours.SendStenchGolemBehaviour;
 import eu.su.mas.dedaleEtu.mas.behaviours.ExploSoloBehaviour;
 import eu.su.mas.dedaleEtu.mas.behaviours.HuntBehaviour;
 import eu.su.mas.dedaleEtu.mas.behaviours.ReceiveBehaviour;
+import eu.su.mas.dedaleEtu.mas.behaviours.ReceiveStenchGolemBehaviour;
 import eu.su.mas.dedaleEtu.mas.knowledge.MapRepresentation;
 import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.FSMBehaviour;
@@ -70,6 +72,8 @@ public class ExploreSoloAgent extends AbstractDedaleAgent {
 			lb.add(explo);
 			lb.add(new SendBehaviour(this,explo,agentsList));
 			lb.add(new ReceiveBehaviour(this,explo));
+			lb.add(new SendStenchGolemBehaviour(this, explo, agentsList));
+			lb.add(new ReceiveStenchGolemBehaviour(this, explo));
 			
 			// Première version chasser le Golem avec un fsm et HuntBehaviour mais possible sans fsm
 
