@@ -28,7 +28,7 @@ public class SendStenchGolemBehaviour extends SimpleBehaviour {
 	
 	@Override
 	public void action() {
-		if(!explo.getHunt() || explo.done()) {
+		if(!explo.getHunt() || explo.finish()) {
 			return;
 			
 		} else {

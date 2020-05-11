@@ -143,7 +143,8 @@ public class MapRepresentation implements Serializable {
 			shortestPath.add(iter.next().getId());
 		}
 		dijkstra.clear();
-		shortestPath.remove(0);//remove the current position
+		if(!shortestPath.isEmpty())
+			shortestPath.remove(0);//remove the current position
 		return shortestPath;
 	}
 

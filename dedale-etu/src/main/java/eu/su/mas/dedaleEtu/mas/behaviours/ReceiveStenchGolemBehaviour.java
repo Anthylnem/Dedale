@@ -27,7 +27,7 @@ public class ReceiveStenchGolemBehaviour extends SimpleBehaviour{
 	@Override
 	public void action() {
 		
-		if(explo.done()) {
+		if(explo.finish()) {
 			return;
 		}
 		

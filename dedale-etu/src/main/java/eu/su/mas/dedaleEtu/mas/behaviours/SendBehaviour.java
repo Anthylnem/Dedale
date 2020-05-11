@@ -48,7 +48,7 @@ public class SendBehaviour extends TickerBehaviour{
 			//System.out.println("En chasse");
 			return;
 		}*/
-		if(explo.done()) {
+		if(explo.finish()) {
 			return;
 		}
 		
