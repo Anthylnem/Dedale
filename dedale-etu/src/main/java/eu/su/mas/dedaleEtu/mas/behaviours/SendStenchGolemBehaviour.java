@@ -2,6 +2,7 @@ package eu.su.mas.dedaleEtu.mas.behaviours;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
@@ -28,7 +29,7 @@ public class SendStenchGolemBehaviour extends SimpleBehaviour {
 	
 	@Override
 	public void action() {
-		if(!explo.getHunt() || explo.finish()) {
+		if(!explo.getHunt() || explo.finish() || explo.done()) {
 			return;
 			
 		} else {
@@ -45,12 +46,14 @@ public class SendStenchGolemBehaviour extends SimpleBehaviour {
 					
 					if(!name.equals(this.myAgent.getLocalName())) {
 						stenchGolem.addReceiver(new AID(name,AID.ISLOCALNAME));
+						ArrayList<String> l = new ArrayList<String>();
 						
-						String stench = explo.getStench();
-						Serializable se = (Serializable) stench;
+						l.add(explo.getStench());
+						l.add(explo.getNextNode());
+						Serializable ls = (Serializable) l;
 						
 						try {
-							stenchGolem.setContentObject(se);
+							stenchGolem.setContentObject(ls);
 						} catch (IOException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();

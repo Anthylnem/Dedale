@@ -49,7 +49,7 @@ public class ReceiveBehaviour extends TickerBehaviour{
 			return;
 		}*/
 		
-		if(explo.finish()) {
+		if(explo.finish() || explo.done()) {
 			return;
 		}
 		

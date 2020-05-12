@@ -27,7 +27,7 @@ public class ReceiveStenchGolemBehaviour extends SimpleBehaviour{
 	@Override
 	public void action() {
 		
-		if(explo.finish()) {
+		if(explo.finish() || explo.done()) {
 			return;
 		}
 		
@@ -38,9 +38,10 @@ public class ReceiveStenchGolemBehaviour extends SimpleBehaviour{
 			try {
 				//System.out.println("Receive "+msg.getContentObject());
 								
-				String messageContent = (String) msg.getContentObject();
+				@SuppressWarnings("unchecked")
+				ArrayList<String> messageContent = (ArrayList<String>) msg.getContentObject();
 				
-				explo.setStench(messageContent);
+				explo.setStench(messageContent.get(0),messageContent.get(1));
 				
 				//System.out.println("Agent "+this.myAgent.getLocalName()+ " a reçu le message.");
 				//System.out.println(this.myAgent.getLocalName()+"<----Result received from "+msg.getSender().getLocalName()+" ,content= "+msg.getContentObject());
