@@ -174,7 +174,7 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 					golemBlocked = false;
 				} else {
 					stenchIt++;
-					if(stenchIt >= 30) {
+					if(stenchIt >= 500) {
 						System.out.println(this.myAgent.getLocalName()+" A FINI SA JOURNEE ##################################################################################################################################");
 						finished = true;
 					}
@@ -275,49 +275,6 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 				System.out.println(this.myAgent.getLocalName()+" - State of the observations : "+lobs);
 				//System.out.println(this.myAgent.getLocalName()+" - noeuds visités:"+closedNodes);
 				
-				/*
-				//example related to the use of the backpack for the treasure hunt
-				Boolean b=false;
-				for(Couple<Observation,Integer> o:lObservations){
-					switch (o.getLeft()) {
-					case DIAMOND:case GOLD:
-
-						System.out.println(this.myAgent.getLocalName()+" - My treasure type is : "+((AbstractDedaleAgent) this.myAgent).getMyTreasureType());
-						System.out.println(this.myAgent.getLocalName()+" - My current backpack capacity is:"+ ((AbstractDedaleAgent) this.myAgent).getBackPackFreeSpace());
-						System.out.println(this.myAgent.getLocalName()+" - My expertise is: "+((AbstractDedaleAgent) this.myAgent).getMyExpertise());
-						System.out.println(this.myAgent.getLocalName()+" - I try to open the safe: "+((AbstractDedaleAgent) this.myAgent).openLock(Observation.GOLD));
-						System.out.println(this.myAgent.getLocalName()+" - Value of the treasure on the current position: "+o.getLeft() +": "+ o.getRight());
-						System.out.println(this.myAgent.getLocalName()+" - The agent grabbed : "+((AbstractDedaleAgent) this.myAgent).pick());
-						System.out.println(this.myAgent.getLocalName()+" - the remaining backpack capacity is: "+ ((AbstractDedaleAgent) this.myAgent).getBackPackFreeSpace());
-						b=true;
-						break;
-					default:
-						break;
-					}
-				}
-
-				//If the agent picked (part of) the treasure
-				if (b){
-					List<Couple<String,List<Couple<Observation,Integer>>>> lobs2=((AbstractDedaleAgent)this.myAgent).observe();//myPosition
-					System.out.println(this.myAgent.getLocalName()+" - State of the observations after picking "+lobs2);
-					
-					//Trying to store everything in the tanker
-					System.out.println(this.myAgent.getLocalName()+" - My current backpack capacity is:"+ ((AbstractDedaleAgent)this.myAgent).getBackPackFreeSpace());
-					System.out.println(this.myAgent.getLocalName()+" - The agent tries to transfer is load into the Silo (if reachable); succes ? : "+((AbstractDedaleAgent)this.myAgent).emptyMyBackPack("Silo"));
-					System.out.println(this.myAgent.getLocalName()+" - My current backpack capacity is:"+ ((AbstractDedaleAgent)this.myAgent).getBackPackFreeSpace());
-					
-				}
-				
-				//Trying to store everything in the tanker
-				//System.out.println(this.myAgent.getLocalName()+" - My current backpack capacity is:"+ ((AbstractDedaleAgent)this.myAgent).getBackPackFreeSpace());
-				//System.out.println(this.myAgent.getLocalName()+" - The agent tries to transfer is load into the Silo (if reachable); succes ? : "+((AbstractDedaleAgent)this.myAgent).emptyMyBackPack("Silo"));
-				//System.out.println(this.myAgent.getLocalName()+" - My current backpack capacity is:"+ ((AbstractDedaleAgent)this.myAgent).getBackPackFreeSpace());
-				*/
-
-				/************************************************
-				 * 				END API CALL ILUSTRATION
-				 *************************************************/
-				
 				// Mauvaise solution interblocage
 				/*
 				Iterator<Couple<String, List<Couple<Observation, Integer>>>> ite2=lobs.iterator();
@@ -337,7 +294,7 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 				int cpt = 0;
 				
 				if(!lastNode.isBlank() && lastNode.equals(nextNode) && currObs.isEmpty() && !myPosition.equals(lastNode)) {
-					System.out.println(this.myAgent.getLocalName()+" (avant) nextnode: "+nextNode+" lastnode:"+lastNode);
+					//System.out.println(this.myAgent.getLocalName()+" (avant) nextnode: "+nextNode+" lastnode:"+lastNode);
 					for (Iterator<Couple<String, List<Couple<Observation, Integer>>>> it = lobs.iterator(); it.hasNext(); ) {
 						Couple<String, List<Couple<Observation, Integer>>> next = it.next();
 						//System.out.println(this.myAgent.getLocalName()+" INTERBLOCAGE");
@@ -356,7 +313,7 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 				// Déplacement vers une case (receivedStench) avec odeur envoyée par un autre agent
 				
 				if(!receivedStench.isBlank() && !nextNodeOther.isBlank() && !blackList.contains(receivedStench) && (openNodes.contains(receivedStench) || closedNodes.contains(receivedStench))) {
-					System.out.println("RECEIVED STENCH");
+					System.out.println(this.myAgent.getLocalName()+" RECEIVED STENCH");
 					List<String> node = new ArrayList<String>();
 					if(nextNodeOther.equals(receivedStench))
 						node = this.myMap.getShortestPath(myPosition,receivedStench);
@@ -372,7 +329,7 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 						receivedStench = "";
 				}
 				
-				//Hunt
+				//Hunt (Suivre un Golem)
 				
 				hunt = false;
 				
@@ -388,7 +345,7 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 								nextNode = this.myMap.getShortestPath(myPosition,lastObs.get(0).getRight().get(0)).get(0);
 							else {
 								nextNode = randomPosition(myPosition);
-								System.out.println(this.myAgent.getLocalName()+" J'EXPLORE ALEATOIREMENT");
+								//System.out.println(this.myAgent.getLocalName()+" J'EXPLORE ALEATOIREMENT");
 							}
 						}
 						
@@ -507,7 +464,10 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 		}
 		
 	}
-	
+	/**
+	 * @param myPosition
+	 * @return true si il y a une odeur sur myPosition, false sinon
+	 */
 	public boolean myPositionHasStench(String myPosition) {
 		Iterator<Couple<String, List<Couple<Observation, Integer>>>> ite1 = lobs.iterator();
 		
@@ -534,6 +494,9 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 		return lastObs;
 	}
 	
+	/**
+	 * @param lastObsOther : dernières observations envoyées par un autre agent
+	 */
 	public void setLastObs(LinkedList<Couple<Integer,List<String>>> lastObsOther) {
 		if(!lastObsOther.isEmpty() && !lastObs.isEmpty() && (lastObsOther.get(0).getLeft() > lastObs.get(0).getLeft())) {
 			if(lastObs.size() >= lastObsSize) {
@@ -549,12 +512,19 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 	
 	@Override public boolean done() { return finished; }
 	
-	
+	/**
+	 * 
+	 * @param receivedStench : case avec odeur envoyée par un autre agent 
+	 * @param nextNodeOther : prochain déplacement d'un autre agent
+	 */
 	public void setStench(String receivedStench, String nextNodeOther) {
 		this.receivedStench = receivedStench;
 		this.nextNodeOther = nextNodeOther;
 	}
 	
+	/**
+	 * @return une case proche avec odeur autre que nextNode (si il en existe une), nextNode sinon
+	 */
 	public String getStench() {
 		if(!stench.isEmpty()) {
 			for(Couple<String, List<Couple<Observation, Integer>>> s : stench) {
@@ -598,6 +568,12 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 		myMap.addNode(node, MapAttribute.closed);
 	}
 	
+	/**
+	 * Ajout de noeuds fermés, noeuds ouverts et noeuds blacklistés
+	 * @param closedNodes
+	 * @param openNodes
+	 * @param blackList
+	 */
 	public void majNodes(Set<String> closedNodes, List<String> openNodes, List<String> blackList) {
 		for(String n : blackList) {
 			if(!this.blackList.contains(n))
@@ -617,16 +593,22 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 				this.openNodes.add(s);
 		}
 	}
-
-	public void setEdges(ArrayList<ArrayList<String>> edges) {
-		//System.out.println("edges "+myAgent.getLocalName()+" "+edges);
-		
+	/**
+	 * Ajout d'arêtes dans MapRepresentation et dans la liste edges
+	 * @param edges
+	 */
+	public void setEdges(ArrayList<ArrayList<String>> edges) {		
 		for(ArrayList<String> e : edges) {
 			if(!blackList.contains(e.get(0)) && !blackList.contains(e.get(1)))
 				this.myMap.addEdge(e.get(0), e.get(1));
 				this.edges.add(e);
 		}
 	}
+	/**
+	 * Déplacement vers une case connue aléatoire
+	 * @param myPosition
+	 * @return la 1ère case renvoyée par getShortestPath
+	 */
 	
 	public String randomPosition(String myPosition) {
 		Random rand = new Random();

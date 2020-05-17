@@ -57,7 +57,12 @@ public final class ConfigurationFile {
 	/**
 	 * Not null when the environment is loaded; should be null if the environment is generated or already online
 	 */
-	public static String INSTANCE_TOPOLOGY=null;
+	//Arbre
+	public static String INSTANCE_TOPOLOGY="resources/map2020-topologyExam1-tree";
+	//Graphe
+	//public static String INSTANCE_TOPOLOGY="resources/map2020-topologyExam1-graph";
+	
+	//public static String INSTANCE_TOPOLOGY=null;
 	//public static String INSTANCE_TOPOLOGY="resources/topology/BinaryTree1";
 	//public static String INSTANCE_TOPOLOGY="resources/topology/map2018-topology-ica";
 	//public static String INSTANCE_TOPOLOGY="resources/interlocking/mapInterlocking2-topology";
@@ -69,7 +74,9 @@ public final class ConfigurationFile {
 	/**
 	 * Not null when the environment is loaded; should be null if the environment is generated or already online
 	 */
-	public static String INSTANCE_CONFIGURATION_ELEMENTS=null;
+	//public static String INSTANCE_CONFIGURATION_ELEMENTS=null;
+	public static String INSTANCE_CONFIGURATION_ELEMENTS="resources/emptyMap";
+	
 	//public static String INSTANCE_CONFIGURATION_ELEMENTS="resources/distributedExploration/emptyMap";
 	//public static String INSTANCE_CONFIGURATION_ELEMENTS="resources/treasureHunt/map2018-elements-ica";
 	//public static String INSTANCE_CONFIGURATION_ELEMENTS="resources/interlocking/mapInterlocking2-elements";
@@ -82,7 +89,12 @@ public final class ConfigurationFile {
 	/**
 	 * Must'nt be null as it describes the agents capabilities on the map
 	 */
-	public static String INSTANCE_CONFIGURATION_ENTITIES="resources/treasureHunt/anyMap-hunt-1golem2agent-entities2";
+	//Arbre
+	public static String INSTANCE_CONFIGURATION_ENTITIES="resources/map2020-entitiesTree";
+	//Graphe
+	//public static String INSTANCE_CONFIGURATION_ENTITIES="resources/map2020-entitiesGraph";
+	
+	//public static String INSTANCE_CONFIGURATION_ENTITIES="resources/treasureHunt/6-agents_2-golems";
 	//public static String INSTANCE_CONFIGURATION_ENTITIES="resources/agentExplo";
 	//public static String INSTANCE_CONFIGURATION_ENTITIES="resources/agentExplo-2";
 	//public static String INSTANCE_CONFIGURATION_ENTITIES="resources/map2018-entities2";
@@ -107,7 +119,10 @@ public final class ConfigurationFile {
 	/**
 	 * Parameter used to perceive the wumpus trough its smell
 	 */
+	//Arbre
 	public static final Integer DEFAULT_DETECTION_RADIUS = 1;
+	//Graphe
+	//public static final Integer DEFAULT_DETECTION_RADIUS = 10;
 	
 	/**true if a grid environment should be generated, false otherwise (A dogoronev env is generated)**/
 	public static boolean ENVIRONMENTisGRID=true;

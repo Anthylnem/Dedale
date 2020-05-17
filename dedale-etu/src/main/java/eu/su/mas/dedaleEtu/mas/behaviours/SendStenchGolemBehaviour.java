@@ -50,7 +50,9 @@ public class SendStenchGolemBehaviour extends SimpleBehaviour {
 						
 						l.add(explo.getStench());
 						l.add(explo.getNextNode());
+						//l.add(explo.getMyPosition());
 						Serializable ls = (Serializable) l;
+						//System.out.println(this.myAgent.getLocalName()+l);
 						
 						try {
 							stenchGolem.setContentObject(ls);

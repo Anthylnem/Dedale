@@ -41,7 +41,7 @@ public class ReceiveStenchGolemBehaviour extends SimpleBehaviour{
 				@SuppressWarnings("unchecked")
 				ArrayList<String> messageContent = (ArrayList<String>) msg.getContentObject();
 				
-				explo.setStench(messageContent.get(0),messageContent.get(1));
+				explo.setStench(messageContent.get(0), messageContent.get(1));
 				
 				//System.out.println("Agent "+this.myAgent.getLocalName()+ " a reçu le message.");
 				//System.out.println(this.myAgent.getLocalName()+"<----Result received from "+msg.getSender().getLocalName()+" ,content= "+msg.getContentObject());
